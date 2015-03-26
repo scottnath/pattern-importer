@@ -1,0 +1,27 @@
+{
+  "name": "pattern-importer",
+  "version": "0.0.1",
+  "description": "Script to import html patterns according to the standards set out by github.com/pattern-library.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/pattern-library/pattern-importer"
+  },
+  "author": "scottnath",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pattern-library/pattern-importer/issues"
+  },
+  "homepage": "https://github.com/pattern-library/pattern-importer",
+  "devDependencies": {
+    "fs-extra": "^0.16.5",
+    "gulp-util": "^3.0.4",
+    "js-yaml": "^3.2.7",
+    "mkdirp": "^0.5.0",
+    "swig": "^1.4.2",
+    "through2": "^0.6.3"
+  }
+}
