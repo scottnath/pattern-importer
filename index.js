@@ -10,7 +10,6 @@ code below works, but is a POC and not finalized or optimized in any way
 
 var through = require('through2'),
     gutil = require('gulp-util'),
-    swig = require('swig'),
     twig = require('twig'),
     yaml = require('js-yaml'),
     path = require('path'),
