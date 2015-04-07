@@ -1,5 +1,13 @@
 'use strict';
-//DO NOT USE - NOT READY YET AT ALL
+
+/*
+
+THIS IS BETA CODE
+
+code below works, but is a POC and not finalized or optimized in any way
+
+*/
+
 var through = require('through2'),
     gutil = require('gulp-util'),
     swig = require('swig'),
