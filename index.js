@@ -130,10 +130,10 @@ module.exports = function (options) {
         if (patternList[meta.category] === undefined) {
           patternList[meta.category] = [];
         }
-        patternList[meta.category].push(path.join(meta.html));
+        patternList[meta.category].push(path.join(meta.twig));
 
       } else {
-        patternList['uncategorized'].push(path.join(meta.html));
+        patternList['uncategorized'].push(path.join(meta.twig));
       }
 
       patternDestDir = PATTERN_IMPORT_DEST + patternCatDir + patternDirName;
@@ -190,22 +190,22 @@ module.exports = function (options) {
           console.log('script saved!');
         });
       }
-      if (meta.html && fs.existsSync(path.join(paths.folder, meta.html))) {
+      if (meta.twig && fs.existsSync(path.join(paths.folder, meta.twig))) {
 
         // add html file to configYml
-        configYml.html = meta.html
+        configYml.html = patternDirName + '.html';
 
-        var pattern = readFile(path.join(paths.folder, meta.html));
+        var pattern = readFile(path.join(paths.folder, meta.twig));
         console.log('data');
         console.log(data);
 
         var tpl = twig.twig({
-          path: path.join(paths.folder, meta.html),
+          path: path.join(paths.folder, meta.twig),
           async: false
         }); //read the file with Twig
         console.log(tpl.render(data));
 
-        fs.writeFile(path.join(patternDestDir, meta.html), tpl.render(data), function (err) {
+        fs.writeFile(path.join(patternDestDir, patternDirName + '.html'), tpl.render(data), function (err) {
           if (err) throw err;
           console.log('pattern saved!');
         });
