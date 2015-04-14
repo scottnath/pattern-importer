@@ -17,12 +17,16 @@
   },
   "homepage": "https://github.com/pattern-library/pattern-importer",
   "devDependencies": {
+    "chai": "^2.2.0",
+    "event-stream": "^3.3.0",
     "fs-extra": "^0.16.5",
     "gulp-util": "^3.0.4",
     "js-yaml": "^3.2.7",
     "mkdirp": "^0.5.0",
+    "should": "^5.2.0",
     "swig": "^1.4.2",
-    "through2": "^0.6.3"
+    "through2": "^0.6.3",
+    "vinyl": "^0.4.6"
   },
   "dependencies": {
     "fs-extra": "^0.18.0",

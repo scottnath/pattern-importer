@@ -1,6 +1,6 @@
 var patternImporter = require('../'),
     patternUtilities = require('../utils'),
-    importSinglePattern = require('../import-single-pattern'),
+    importSinglePattern = require('../lib/import-single-pattern'),
     patternCompiler = require('../lib/pattern-compiler');
 var should = require('should');
 var chai = require('chai');
@@ -84,6 +84,10 @@ describe('pattern-importing', function () {
 
     });
 
+    it.skip('should get the template options from the template data file', function () {
+
+    });
+
     it('should get a pattern destination path', function () {
 
       var file = createFile('test-elm-h1/pattern.yml');
@@ -95,13 +99,13 @@ describe('pattern-importing', function () {
 
       patternDestPath.should.equal('test/_patterns/base/subcatbase/test-elm-h1');
 
-    })
+    });
 
   });
 
   describe('pattern compiling', function () {
 
-    it('should determine our compiling engine', function () {
+    it('should determine our pattern template file and compiling engine', function () {
 
       var file = createFile('test-elm-h1/pattern.yml');
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
@@ -111,9 +115,74 @@ describe('pattern-importing', function () {
       compileeObject.should.have.property('src', './test-elm-h1.twig');
       compileeObject.should.have.property('templateEngine', 'twig');
 
-    })
+    });
 
-  })
+    it.skip('should allow the pattern to override the templateEngine via pattern.yml options', function () {
+
+    });
+
+    it.skip('should allow the system to override overriding the templateEngine', function () {
+
+    });
+
+    it('should default to an html pattern with a warning message', function () {
+
+      var file = createFile('generic-elm-h2/pattern.yml');
+      var patternObject = patternUtilities.convertYamlToObject(file.contents);
+
+      var compileeObject = patternCompiler.determineCompiler(options, patternObject);
+
+      compileeObject.should.have.property('src', './generic-elm-h2.html');
+      compileeObject.should.have.property('templateEngine', 'none');
+
+    });
+
+    it('should create a list of css files to include', function () {
+
+    });
+
+    it.skip('should convert the css list to html link elements', function () {
+
+    });
+
+    it.skip('should create a list of js files to include', function () {
+
+    });
+
+    it.skip('should convert the js list to html script elements', function () {
+
+    });
+
+    it.skip('should convert the template to html', function () {
+
+    });
+
+    it.skip('should write the html to a file', function () {
+
+    });
+
+    // it('should repeat import-single-pattern recursively through all included templates', function () {
+
+    // });
+
+  });
+
+  describe.skip('twig compiling', function () {
+
+
+    it('should get the template donut', function () {
+
+    });
+
+    it('should convert twig syntax into html', function () {
+
+    });
+
+    it('should compile supporting templates into a single html page', function () {
+
+    });
+
+  });
 
   // describe('pattern importer', function() {
 
