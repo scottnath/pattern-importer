@@ -85,6 +85,10 @@ var patternImporter = function patternImporter (options) {
     var paths = utils.getFilePaths(file);
 
     // add this pattern to the list of compiled patterns
+    /*
+    NATH:
+    this should contain the pattern and it's css/js links too
+    */
     compiledPatterns.push(paths.folder);
 
     // convert single pattern
