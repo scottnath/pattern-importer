@@ -1,7 +1,9 @@
 var patternImporter = require('../'),
     patternUtilities = require('../utils'),
     importSinglePattern = require('../lib/import-single-pattern'),
-    patternCompiler = require('../lib/pattern-compiler');
+    patternCompiler = require('../lib/pattern-compiler'),
+    cssCompiler = require('../lib/css-compiler'),
+    sassCompiler = require('../lib/css-compilers/sass-compiler');
 var should = require('should');
 var chai = require('chai');
 var expect = chai.expect;
@@ -101,19 +103,35 @@ describe('pattern-importing', function () {
 
     });
 
+    it.skip('should recursively process all included templates', function () {
+
+    });
+
+    it.skip('should skip included templates already processed this round', function () {
+
+    });
+
   });
 
   describe('pattern compiling', function () {
+
+    it('should test if the pattern has been compiled (compiledPatterns) during this round', function () {
+
+    })
+
+    it('should skip compilation if the pattern has been compiled (compiledPatterns) during this round', function () {
+
+    })
 
     it('should determine our pattern template file and compiling engine', function () {
 
       var file = createFile('test-elm-h1/pattern.yml');
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
 
-      var compileeObject = patternCompiler.determineCompiler(options, patternObject);
+      var patternCompilerData = patternCompiler.determineCompiler(options, patternObject);
 
-      compileeObject.should.have.property('src', './test-elm-h1.twig');
-      compileeObject.should.have.property('templateEngine', 'twig');
+      patternCompilerData.should.have.property('src', './test-elm-h1.twig');
+      patternCompilerData.should.have.property('templateEngine', 'twig');
 
     });
 
@@ -130,14 +148,49 @@ describe('pattern-importing', function () {
       var file = createFile('generic-elm-h2/pattern.yml');
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
 
-      var compileeObject = patternCompiler.determineCompiler(options, patternObject);
+      var patternCompilerData = patternCompiler.determineCompiler(options, patternObject);
 
-      compileeObject.should.have.property('src', './generic-elm-h2.html');
-      compileeObject.should.have.property('templateEngine', 'none');
+      patternCompilerData.should.have.property('src', './generic-elm-h2.html');
+      patternCompilerData.should.have.property('templateEngine', 'none');
+
+    });
+
+    it('should determine the current template css pre-processor file type and file', function () {
+
+      var file = createFile('test-elm-h1/pattern.yml');
+      var patternObject = patternUtilities.convertYamlToObject(file.contents);
+
+      var cssCompilerData = cssCompiler.determineCssCompiler(options, patternObject);
+
+      cssCompilerData.should.have.property('src', './test-elm-h1.scss');
+      cssCompilerData.should.have.property('compilingEngine', 'sass');
+
+    });
+
+    it('should compile the current template css pre-processor file', function () {
+
+      var file = createFile('test-elm-h1/pattern.yml');
+      var paths = patternUtilities.getFilePaths(file);
+      var patternObject = patternUtilities.convertYamlToObject(file.contents);
+      var cssCompilerData = cssCompiler.determineCssCompiler(options, patternObject);
+
+      var compileCss = cssCompiler.compileCss(paths, cssCompilerData);
+
+      String(compileCss).should.containEql('.base--h1, .base--STYLED h1 {');
+
+    });
+
+    it.skip('should record the relative path to the processed css file', function () {
 
     });
 
     it('should create a list of css files to include', function () {
+
+      var file = createFile('test-include-header/pattern.yml');
+      var patternObject = patternUtilities.convertYamlToObject(file.contents);
+      var paths = patternUtilities.getFilePaths(file);
+      var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
+      var patternDestPath = patternUtilities.getPatternDestPath(compiledYmlObject, paths, options);
 
     });
 
@@ -161,9 +214,26 @@ describe('pattern-importing', function () {
 
     });
 
-    // it('should repeat import-single-pattern recursively through all included templates', function () {
+    it.skip('should add the pattern to the compiledPatterns object', function () {
+      // should include css/js relative paths as well
+    });
 
-    // });
+  });
+
+  describe.skip('sass compiling', function () {
+
+    it('should compile sass into css', function () {
+
+      var file = createFile('test-elm-h1/pattern.yml');
+      var paths = patternUtilities.getFilePaths(file);
+      var patternObject = patternUtilities.convertYamlToObject(file.contents);
+      var cssCompilerData = cssCompiler.determineCssCompiler(options, patternObject);
+
+      var cssOutput = sassCompiler(paths, cssCompilerData);
+
+      String(cssOutput).should.containEql('.base--h1, .base--STYLED h1 {');
+
+    });
 
   });
 
