@@ -167,7 +167,7 @@ describe('pattern-importing', function () {
 
     });
 
-    it('should compile the current template css pre-processor file', function () {
+    it('should compile the current template\'s css pre-processor file', function () {
 
       var file = createFile('test-elm-h1/pattern.yml');
       var paths = patternUtilities.getFilePaths(file);
@@ -177,6 +177,30 @@ describe('pattern-importing', function () {
       var compileCss = cssCompiler.compileCss(paths, cssCompilerData);
 
       String(compileCss).should.containEql('.base--h1, .base--STYLED h1 {');
+
+    });
+
+    it('should skip compling vanilla css', function () {
+
+      var file = createFile('generic-elm-h2/pattern.yml');
+      var paths = patternUtilities.getFilePaths(file);
+      var patternObject = patternUtilities.convertYamlToObject(file.contents);
+      var cssCompilerData = cssCompiler.determineCssCompiler(options, patternObject);
+
+      var compileCss = cssCompiler.compileCss(paths, cssCompilerData);
+
+      String(compileCss).should.containEql('.generic-elm-h2 {');
+
+    });
+
+    it('should save the compiled css to the pattern destination path', function () {
+
+      var file = createFile('test-elm-h1/pattern.yml');
+      var paths = patternUtilities.getFilePaths(file);
+      var patternObject = patternUtilities.convertYamlToObject(file.contents);
+      var cssCompilerData = cssCompiler.determineCssCompiler(options, patternObject);
+
+      var compileCss = cssCompiler.compileCss(paths, cssCompilerData);
 
     });
 
