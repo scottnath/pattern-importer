@@ -84,24 +84,18 @@ var createCompiledYmlObject = function createCompiledYmlObject (object, paths, o
  *
  */
 var getPatternDestPath = function getPatternDestPath (object, paths, options) {
-  console.log(object.categoryUrl);
+
   return path.join(options.patternImportDest, object.categoryUrl, paths.directory);
 
 }
 
-// var writeFile = function (file) {
-//   console.log('I WROTE that WORKER!');
-//   fsp.writeFile('hello1.txt', 'hello world')
-//     .then(function(){
-//       console.log('I WROTE that!');
-//       console.log(contents);
-//       return fsp.readFile('hello1.txt', {encoding:'utf8'});
-//     })
-//     .then(function(contents){
-//       console.log('I Read that!');
-//       console.log(contents);
-//     });
-// };
+var writeFile = function writeFile (dest, contents) {
+
+  fsp.writeFile(dest, contents)
+    .then(function(){
+      console.log('File written: '+dest);
+    });
+};
 
 // var readFile = function (file) {
 //   fsp.readFile('hello1.txt', {encoding:'utf8'})
@@ -118,5 +112,6 @@ module.exports = {
 	getFilePaths: getFilePaths,
   convertYamlToObject: convertYamlToObject,
   createCompiledYmlObject: createCompiledYmlObject,
-  getPatternDestPath: getPatternDestPath
+  getPatternDestPath: getPatternDestPath,
+  writeFile: writeFile
 }

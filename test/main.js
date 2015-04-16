@@ -2,7 +2,7 @@ var patternImporter = require('../'),
     patternUtilities = require('../utils'),
     importSinglePattern = require('../lib/import-single-pattern'),
     patternCompiler = require('../lib/pattern-compiler'),
-    cssCompiler = require('../lib/css-compiler'),
+    cssUtils = require('../lib/css-utils.js'),
     sassCompiler = require('../lib/css-compilers/sass-compiler');
 var should = require('should');
 var chai = require('chai');
@@ -160,7 +160,7 @@ describe('pattern-importing', function () {
       var file = createFile('test-elm-h1/pattern.yml');
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
 
-      var cssCompilerData = cssCompiler.determineCssCompiler(options, patternObject);
+      var cssCompilerData = cssUtils.determineCssCompiler(options, patternObject);
 
       cssCompilerData.should.have.property('src', './test-elm-h1.scss');
       cssCompilerData.should.have.property('compilingEngine', 'sass');
@@ -172,9 +172,9 @@ describe('pattern-importing', function () {
       var file = createFile('test-elm-h1/pattern.yml');
       var paths = patternUtilities.getFilePaths(file);
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
-      var cssCompilerData = cssCompiler.determineCssCompiler(options, patternObject);
+      var cssCompilerData = cssUtils.determineCssCompiler(options, patternObject);
 
-      var compileCss = cssCompiler.compileCss(paths, cssCompilerData);
+      var compileCss = cssUtils.compileCss(paths, cssCompilerData);
 
       String(compileCss).should.containEql('.base--h1, .base--STYLED h1 {');
 
@@ -185,30 +185,36 @@ describe('pattern-importing', function () {
       var file = createFile('generic-elm-h2/pattern.yml');
       var paths = patternUtilities.getFilePaths(file);
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
-      var cssCompilerData = cssCompiler.determineCssCompiler(options, patternObject);
+      var cssCompilerData = cssUtils.determineCssCompiler(options, patternObject);
 
-      var compileCss = cssCompiler.compileCss(paths, cssCompilerData);
+      var cssCompiledContents = cssUtils.compileCss(paths, cssCompilerData);
 
-      String(compileCss).should.containEql('.generic-elm-h2 {');
+      String(cssCompiledContents).should.containEql('.generic-elm-h2 {');
 
     });
 
-    it('should save the compiled css to the pattern destination path', function () {
+    it.skip('should save the compiled css to the pattern destination path', function () {
 
       var file = createFile('test-elm-h1/pattern.yml');
       var paths = patternUtilities.getFilePaths(file);
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
-      var cssCompilerData = cssCompiler.determineCssCompiler(options, patternObject);
+      var cssCompilerData = cssUtils.determineCssCompiler(options, patternObject);
 
-      var compileCss = cssCompiler.compileCss(paths, cssCompilerData);
+      var cssCompiledContents = cssUtils.compileCss(paths, cssCompilerData);
+
+      // need help for this test - how to read/write?
+
 
     });
 
-    it.skip('should record the relative path to the processed css file', function () {
+    it('should create the css file name', function () {
+
+      var cssFileName = cssUtils.cssFileName('test123');
+      String(cssFileName).should.equal('test123.css');
 
     });
 
-    it('should create a list of css files to include', function () {
+    it.skip('should create a list of css files to include', function () {
 
       var file = createFile('test-include-header/pattern.yml');
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
@@ -251,7 +257,7 @@ describe('pattern-importing', function () {
       var file = createFile('test-elm-h1/pattern.yml');
       var paths = patternUtilities.getFilePaths(file);
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
-      var cssCompilerData = cssCompiler.determineCssCompiler(options, patternObject);
+      var cssCompilerData = cssUtils.determineCssCompiler(options, patternObject);
 
       var cssOutput = sassCompiler(paths, cssCompilerData);
 
