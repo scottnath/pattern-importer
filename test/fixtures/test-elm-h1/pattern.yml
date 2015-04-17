@@ -4,6 +4,7 @@ twig: ./test-elm-h1.twig
 sass: ./test-elm-h1.scss
 category: base
 subcategory: subcatbase
+script: ./test-elm-h1.js
 data:
   header:
     text: Test Header 1

@@ -1,8 +1,10 @@
 'use strict';
 
 var path = require('path'),
+    fs = require('fs-extra'),
     fsp = require('fs-promise'),
-    yaml = require('js-yaml');
+    yaml = require('js-yaml'),
+    File = require('vinyl');
 
 /**
  * Returns an object of file path data
@@ -89,6 +91,39 @@ var getPatternDestPath = function getPatternDestPath (object, paths, options) {
 
 }
 
+/**
+ * Creates a vinyl file
+ * @function createFile
+ *
+        var includeFile = new File({
+          base: path.join(paths.folder, include),
+          path: path.join(paths.folder, include, options.dataFileName),
+          contents: new Buffer(fs.readFileSync(path.join(paths.folder, include, options.dataFileName), {encoding:'utf8'}))
+        });
+ */
+var createFile = function createFile (filePath, cwd, base, type) {
+  var contents;
+  //var filePath = path.join(__filename, '..', 'fixtures', filePath);
+
+  if (type == 'stream') {
+    contents = fs.createReadStream(filePath);
+  } else {
+    contents = fs.readFileSync(filePath);
+  }
+
+  return new File({
+    path: filePath,
+    cwd: cwd,
+    base: base,
+    contents: contents
+  });
+};
+
+/**
+ * Writes a variable of content to a file
+ * @function writeFile
+ *
+ */
 var writeFile = function writeFile (dest, contents) {
 
   fsp.writeFile(dest, contents)
@@ -97,14 +132,73 @@ var writeFile = function writeFile (dest, contents) {
     });
 };
 
-// var readFile = function (file) {
-//   fsp.readFile('hello1.txt', {encoding:'utf8'})
-//     .then(function(contents){
-//       console.log('I Read that!');
-//       console.log(contents);
-//       return contents;
-//     });
-// };
+/**
+ * Copies a file from one place to another
+ * @function copyFile
+ *
+ */
+var copyFile = function copyFile (src, dest) {
+  console.log(src);
+  console.log(dest);
+  fs.copy(src, dest, function (err) {
+    if (err) return console.error(err)
+      console.log('File copied from: ' + src + ' to ' + dest);
+  }) // copies file
+
+};
+
+/**
+ * Returns an array of css files used by the pattern and its included patterns
+ * @function getPatternCssFilesArray
+ *
+ */
+var getPatternCssFilesArray = function getPatternCssFilesArray (patternFiles) {
+  var cssArray = [];
+  if(patternFiles.includedFiles !== undefined){
+    if((patternFiles.includedFiles.css !== undefined) && Array.isArray(patternFiles.includedFiles.css)){
+      patternFiles.includedFiles.css.forEach(function (file) {
+        cssArray.push(file);
+      });
+    }
+  }
+  if(patternFiles.patternCss !== undefined){
+    cssArray.push(patternFiles.patternCss);
+  }
+  return cssArray;
+}
+
+/**
+ * Returns an array of js files used by the pattern and its included patterns
+ * @function getPatternJsFilesArray
+ *
+ */
+var getPatternJsFilesArray = function getPatternJsFilesArray (patternFiles) {
+  var jsArray = [];
+  if(patternFiles.includedFiles !== undefined){
+    if((patternFiles.includedFiles.js !== undefined) && Array.isArray(patternFiles.includedFiles.js)){
+      patternFiles.includedFiles.js.forEach(function (file) {
+        jsArray.push(file);
+      });
+    }
+  }
+  if(patternFiles.patternScript !== undefined){
+    jsArray.push(patternFiles.patternScript);
+  }
+  return jsArray;
+}
+
+/**
+ * Updates our compiledPatterns object with details about this pattern and its includes
+ * @function addPatternToCompiledPatterns
+ *
+ */
+var addPatternToCompiledPatterns = function addPatternToCompiledPatterns (paths, patternFiles, compiledPatterns) {
+
+  compiledPatterns[paths.folder] = {
+    css: getPatternCssFilesArray(patternFiles),
+    js: getPatternJsFilesArray(patternFiles)
+  }
+}
 
 
 
@@ -113,5 +207,10 @@ module.exports = {
   convertYamlToObject: convertYamlToObject,
   createCompiledYmlObject: createCompiledYmlObject,
   getPatternDestPath: getPatternDestPath,
-  writeFile: writeFile
+  writeFile: writeFile,
+  copyFile: copyFile,
+  createFile: createFile,
+  getPatternCssFilesArray: getPatternCssFilesArray,
+  getPatternJsFilesArray: getPatternJsFilesArray,
+  addPatternToCompiledPatterns: addPatternToCompiledPatterns
 }

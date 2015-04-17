@@ -2,6 +2,6 @@
 {% set header = header.h1 %}
 <header class="{{header.class}}">
   {% include '../test-elm-h1.twig' with header %}
-  <p class="{{header.p.class}}">{{header.p.text}}</p>
+  {% include '../test-elm-p.twig' with paragraph %}
 </header>
 <!-- PATTERN END - /fixtures/test-include-header -->

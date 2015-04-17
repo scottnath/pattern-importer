@@ -103,23 +103,11 @@ describe('pattern-importing', function () {
 
     });
 
-    it.skip('should recursively process all included templates', function () {
-
-    });
-
-    it.skip('should skip included templates already processed this round', function () {
-
-    });
-
   });
 
   describe('pattern compiling', function () {
 
-    it('should test if the pattern has been compiled (compiledPatterns) during this round', function () {
-
-    })
-
-    it('should skip compilation if the pattern has been compiled (compiledPatterns) during this round', function () {
+    it('should skip compilation if the pattern has been compiled during this round', function () {
 
     })
 
@@ -193,20 +181,6 @@ describe('pattern-importing', function () {
 
     });
 
-    it.skip('should save the compiled css to the pattern destination path', function () {
-
-      var file = createFile('test-elm-h1/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
-      var patternObject = patternUtilities.convertYamlToObject(file.contents);
-      var cssCompilerData = cssUtils.determineCssCompiler(options, patternObject);
-
-      var cssCompiledContents = cssUtils.compileCss(paths, cssCompilerData);
-
-      // need help for this test - how to read/write?
-
-
-    });
-
     it('should create the css file name', function () {
 
       var cssFileName = cssUtils.cssFileName('test123');
@@ -214,21 +188,67 @@ describe('pattern-importing', function () {
 
     });
 
-    it.skip('should create a list of css files to include', function () {
+    it('should know the primary pattern\'s post-compile css file relative path', function () {
 
+      var patternFiles = {};
       var file = createFile('test-include-header/pattern.yml');
-      var patternObject = patternUtilities.convertYamlToObject(file.contents);
       var paths = patternUtilities.getFilePaths(file);
+      var patternObject = patternUtilities.convertYamlToObject(file.contents);
       var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
       var patternDestPath = patternUtilities.getPatternDestPath(compiledYmlObject, paths, options);
+      var cssUtilsData = cssUtils.determineCssCompiler(options, patternObject);
+
+      if(cssUtilsData.src !== undefined){
+        var cssFileName = cssUtils.cssFileName(paths.directory);
+        var cssFileRelativePath = path.join(patternDestPath,cssFileName);
+        patternFiles.patternCss = cssFileRelativePath;
+      }
+
+      String(patternFiles.patternCss).should.equal('test/_patterns/base/subcatbase23/test-include-header/test-include-header.css');
+
+    });
+
+    it('should know the primary pattern\'s javascript file relative path', function () {
+
+      var patternFiles = {};
+      var file = createFile('test-include-header/pattern.yml');
+      var paths = patternUtilities.getFilePaths(file);
+      var patternObject = patternUtilities.convertYamlToObject(file.contents);
+      var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
+      var patternDestPath = patternUtilities.getPatternDestPath(compiledYmlObject, paths, options);
+      var cssUtilsData = cssUtils.determineCssCompiler(options, patternObject);
+
+      if(patternObject.script !== undefined){
+        var jsFileSourcePath = path.join(paths.folder,patternObject.script);
+        var jsFileRelativePath = path.join(patternDestPath,patternObject.script);
+        patternFiles.patternScript = jsFileRelativePath;
+      }
+
+      String(patternFiles.patternScript).should.equal('test/_patterns/base/subcatbase23/test-include-header/test-include-header.js');
+
+    });
+
+    it('should create a list of included-pattern(s) css files', function () {
+
+      var file = createFile('test-include-header/pattern.yml');
+      var paths = patternUtilities.getFilePaths(file);
+      var compiledPatterns = [];
+      var patternFiles = importSinglePattern.getPatternData(paths, options, compiledPatterns);
+      patternFiles.includedFiles.css.should.eql(['test/_patterns/uncategorized/generic-elm-h2/generic-elm-h2.css','test/_patterns/base/subcatbase/test-elm-h1/test-elm-h1.css','test/_patterns/base/sometestsubcat/test-elm-p/test-elm-p.css']);
+
+    });
+
+    it('should create a list of included-pattern(s) js files', function () {
+
+      var file = createFile('test-include-header/pattern.yml');
+      var paths = patternUtilities.getFilePaths(file);
+      var compiledPatterns = [];
+      var patternFiles = importSinglePattern.getPatternData(paths, options, compiledPatterns);
+      patternFiles.includedFiles.js.should.eql(['test/_patterns/base/subcatbase/test-elm-h1/test-elm-h1.js','test/_patterns/base/sometestsubcat/test-elm-p/test-elm-p.js']);
 
     });
 
     it.skip('should convert the css list to html link elements', function () {
-
-    });
-
-    it.skip('should create a list of js files to include', function () {
 
     });
 
@@ -283,6 +303,25 @@ describe('pattern-importing', function () {
     });
 
   });
+
+  describe.skip('file writing', function () {
+
+
+    it.skip('should save the compiled css to the pattern destination path', function () {
+
+      // var file = createFile('test-elm-h1/pattern.yml');
+      // var paths = patternUtilities.getFilePaths(file);
+      // var patternObject = patternUtilities.convertYamlToObject(file.contents);
+      // var cssCompilerData = cssUtils.determineCssCompiler(options, patternObject);
+
+      // var cssCompiledContents = cssUtils.compileCss(paths, cssCompilerData);
+
+      // need help for this test - how to read/write?
+
+
+    });
+
+  })
 
   // describe('pattern importer', function() {
 

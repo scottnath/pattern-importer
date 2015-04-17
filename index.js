@@ -81,18 +81,12 @@ var patternImporter = function patternImporter (options) {
       return cb();
     }
 
-    // get various paths
-    var paths = utils.getFilePaths(file);
-
-    // add this pattern to the list of compiled patterns
-    /*
-    NATH:
-    this should contain the pattern and it's css/js links too
-    */
-    compiledPatterns.push(paths.folder);
-
     // convert single pattern
-    importSinglePattern(paths,options);
+    importSinglePattern.importSinglePattern(file, options, compiledPatterns);
+
+    //compiledPatterns.push(patternFiles);
+    console.log('compiledPatterns');
+    console.log(compiledPatterns);
 
 
     this.push(file);
