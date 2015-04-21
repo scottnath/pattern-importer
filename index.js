@@ -1,30 +1,18 @@
 'use strict';
-
-/*
-
-THIS IS BETA CODE
-
-code below works, but is a POC and not finalized or optimized in any way
-
-*/
-
 var through = require('through2'),
-    utils = require('./utils'),
+    utils = require('./lib/utils'),
     importSinglePattern = require('./lib/import-single-pattern'),
-    patternCompiler = require('./lib/pattern-compiler'),
     gutil = require('gulp-util'),
-    twig = require('twig'),
-    yaml = require('js-yaml'),
-    path = require('path'),
-    fs = require('fs-extra'),
     mkdirp = require('mkdirp'),
     PluginError = gutil.PluginError,
-    PLUGIN_NAME = 'pattern-importer',
-    patternList = [];
+    PLUGIN_NAME = 'pattern-importer';
 
-    var sass = require('node-sass');
-
-
+/*
+ * Imports html patterns following the standards at github.com/pattern-library
+ * @module patternImporter
+ *
+ * @param {Object} options
+*/
 var patternImporter = function patternImporter (options) {
 
   options = utils.getOptions(options);
@@ -47,11 +35,6 @@ var patternImporter = function patternImporter (options) {
 
     // convert single pattern
     importSinglePattern.importSinglePattern(file, options, compiledPatterns);
-
-    //compiledPatterns.push(patternFiles);
-    console.log('compiledPatterns');
-    console.log(compiledPatterns);
-
 
     this.push(file);
     cb();
