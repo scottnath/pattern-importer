@@ -6,9 +6,9 @@ script: ./test-include-header.js
 category: base
 subcategory: subcatbase23
 includes:
-  - ../generic-elm-h2
-  - ../test-elm-h1
-  - ../test-elm-p
+  - ../../generic-elm-h2
+  - ../../test-elm-h1
+  - ../../test-elm-p
 data:
   class: header--test
   h1:

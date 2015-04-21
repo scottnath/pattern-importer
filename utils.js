@@ -4,14 +4,90 @@ var path = require('path'),
     fs = require('fs-extra'),
     fsp = require('fs-promise'),
     yaml = require('js-yaml'),
-    File = require('vinyl');
+    File = require('vinyl'),
+    transform = require('./node_modules/gulp-inject/src/transform/index.js');
+
+/**
+ * Returns an object containing pattern importer's options
+ * @function getOptions
+ *
+ * @param {Object} options
+ *
+ * @returns {Object} options
+ */
+var getOptions = function getOptions (options) {
+
+  var optionsDefaults = {
+    dataSource: 'pattern',
+    dataFileName: 'pattern.yml',
+    patternImportDest: './app/_patterns',
+    cssCompiler: 'sass', // sass, less, stylus, none
+    templateEngine: 'twig',
+    templateDonut: {
+      'twig': './node_modules/pattern-importer/templates/donut.twig'
+    },
+    appFolder: 'app/'
+  }
+
+  if (!options) options = {};
+
+  // determine data source
+  if (!options.dataSource) options.dataSource = optionsDefaults.dataSource;
+  if (typeof options.dataSource !== 'string') {
+    throw new gutil.PluginError(PLUGIN_NAME, 'Pattern dataSource name must be a string');
+  }
+
+  // determine pattern datafileName name
+  if (!options.dataFileName) options.dataFileName = optionsDefaults.dataFileName;
+  if (typeof options.dataFileName !== 'string') {
+    throw new gutil.PluginError(PLUGIN_NAME, 'Pattern dataFileName name must be a string');
+  }
+
+  // determine compiled pattern target location
+  if (!options.patternImportDest) options.patternImportDest = optionsDefaults.patternImportDest;
+  if (typeof options.patternImportDest !== 'string') {
+    throw new gutil.PluginError(PLUGIN_NAME, 'Pattern import destination folder must be a string');
+  }
+
+  // determine pattern template compiling engine
+  if (!options.templateEngine) options.templateEngine = optionsDefaults.templateEngine;
+  if (typeof options.templateEngine !== 'string') {
+    throw new gutil.PluginError(PLUGIN_NAME, 'Pattern template engine must be a string');
+  }
+
+  // determine css compiler
+  if (!options.cssCompiler) options.cssCompiler = optionsDefaults.cssCompiler;
+  if (typeof options.cssCompiler !== 'string') {
+    throw new gutil.PluginError(PLUGIN_NAME, 'CSS compiler name must be a string');
+  }
+
+  // determine template engine
+  if (!options.templateEngine) options.templateEngine = optionsDefaults.templateEngine;
+  if (typeof options.templateEngine !== 'string') {
+    throw new gutil.PluginError(PLUGIN_NAME, 'Template Engine name must be a string');
+  }
+
+  // determine template donut
+  if (!options.templateDonut) options.templateDonut = optionsDefaults.templateDonut;
+  if (typeof options.templateDonut !== 'object') {
+    throw new gutil.PluginError(PLUGIN_NAME, 'Template donut must be an object');
+  }
+
+  // check we have a donut for our template engine
+  if (!options.templateDonut[options.templateEngine]) {
+    throw new gutil.PluginError(PLUGIN_NAME, 'You do not have a '+String(options.templateEngine)+' template donut. Add one to the Pattern Importer options.');
+  }
+
+  return options;
+}
 
 /**
  * Returns an object of file path data
  * @function getFilePaths
  *
  */
-var getFilePaths = function (file) {
+var getFilePaths = function getFilePaths (file) {
+
   var paths = {
     absolute: file.path,
     relative: file.path.replace(process.cwd() + '/', ''),
@@ -31,49 +107,88 @@ var convertYamlToObject = function convertYamlToObject (yml) {
 }
 
 /**
+ * Returns yaml data from an object
+ * @function convertObjectToYaml
+ *
+ */
+var convertObjectToYaml = function convertYamlToObject (object) {
+  return yaml.safeDump(object);
+}
+
+/**
+ * Returns a pattern's data from the desired source
+ * @function getPatternData
+ *
+ */
+var getPatternData = function getPatternData (patternObject, dataSource) {
+
+  if(dataSource == 'pattern'){
+    return patternObject.data;
+  } else {
+    return patternObject.data;
+  }
+
+}
+
+/**
+ * Checks whether a pattern has already been compiled
+ * @function checkPatternCompiled
+ *
+ */
+var checkPatternCompiled = function checkPatternCompiled (paths, compiledPatterns) {
+
+  if(Array.isArray(compiledPatterns)){
+    if(compiledPatterns[paths.folder] !== undefined){
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Returns an object from yaml-data-created object
  * @function convertYamlToObject
  *
  */
-var createCompiledYmlObject = function createCompiledYmlObject (object, paths, options) {
+var createCompiledYmlObject = function createCompiledYmlObject (patternObject, paths, options) {
   var compiledYml = {};
 
   // start putting pattern data into compiledYml object
-  compiledYml.name = object.name;
+  compiledYml.name = patternObject.name;
 
   // source will be the location of the pattern in this project
   compiledYml.source = paths.folder;
 
   // source of the DATA used - NATH: this section will change with addition of func to add LIVE/LOCAL data
-  compiledYml.data = options.dataSource;
+  compiledYml.dataSource = options.dataSource;
 
   // if there is a description, we'll add that to the compiledYml object
-  if (object.description) {
-    compiledYml.description = object.description
+  if (patternObject.description) {
+    compiledYml.description = patternObject.description
   }
 
   // if there are includes, we'll add that to the compiledYml object
-  if (object.includes) {
-    compiledYml.includes = object.includes
+  if (patternObject.includes) {
+    compiledYml.includes = patternObject.includes
   }
 
   compiledYml.categoryUrl = '';
   // if there is a category, we'll put this pattern into that category's subfolder
-  if (object.category) {
+  if (patternObject.category) {
 
     // add category to compiledYml
-    compiledYml.category = compiledYml.categoryUrl = object.category
+    compiledYml.category = compiledYml.categoryUrl = patternObject.category
 
   } else {
     compiledYml.category = compiledYml.categoryUrl = 'uncategorized';
   }
 
   // if there is a category, we'll put this pattern into that category's subfolder
-  if (object.subcategory) {
+  if (patternObject.subcategory) {
 
     // add category to compiledYml
-    compiledYml.subcategory = object.subcategory
-    compiledYml.categoryUrl = path.join(object.category,object.subcategory);
+    compiledYml.subcategory = patternObject.subcategory
+    compiledYml.categoryUrl = path.join(patternObject.category,patternObject.subcategory);
 
   }
 
@@ -95,11 +210,6 @@ var getPatternDestPath = function getPatternDestPath (object, paths, options) {
  * Creates a vinyl file
  * @function createFile
  *
-        var includeFile = new File({
-          base: path.join(paths.folder, include),
-          path: path.join(paths.folder, include, options.dataFileName),
-          contents: new Buffer(fs.readFileSync(path.join(paths.folder, include, options.dataFileName), {encoding:'utf8'}))
-        });
  */
 var createFile = function createFile (filePath, cwd, base, type) {
   var contents;
@@ -126,10 +236,12 @@ var createFile = function createFile (filePath, cwd, base, type) {
  */
 var writeFile = function writeFile (dest, contents) {
 
-  fsp.writeFile(dest, contents)
-    .then(function(){
-      console.log('File written: '+dest);
-    });
+  fs.outputFile(dest, contents, function (err) {
+    if (err) return console.error(err);
+
+    console.log('File written: '+dest);
+  })
+
 };
 
 /**
@@ -138,8 +250,7 @@ var writeFile = function writeFile (dest, contents) {
  *
  */
 var copyFile = function copyFile (src, dest) {
-  console.log(src);
-  console.log(dest);
+
   fs.copy(src, dest, function (err) {
     if (err) return console.error(err)
       console.log('File copied from: ' + src + ' to ' + dest);
@@ -188,23 +299,52 @@ var getPatternJsFilesArray = function getPatternJsFilesArray (patternFiles) {
 }
 
 /**
+ * Returns a string of ready-to-use html elements for an array of files
+ * @function createHtmlElements
+ *
+ * @param {Array,String} files
+ *
+ * @returns {String} files string containing html elements with relative references to the files
+ */
+var createHtmlElements = function createHtmlElements (files) {
+
+  if(files === undefined){
+    // something went wrong
+    throw new gutil.PluginError(PLUGIN_NAME, 'files is blank for  createHtmlElements.');
+  }
+  var filesHtml = '';
+  if(Array.isArray(files)){
+    files.forEach(function(file){
+      filesHtml += transform(file) + '\n';
+    });
+  } else {
+    if(files !== ''){
+      filesHtml = transform(String(files)) + '\n';
+    }
+  }
+  return filesHtml;
+
+}
+
+/**
  * Updates our compiledPatterns object with details about this pattern and its includes
  * @function addPatternToCompiledPatterns
  *
  */
 var addPatternToCompiledPatterns = function addPatternToCompiledPatterns (paths, patternFiles, compiledPatterns) {
 
-  compiledPatterns[paths.folder] = {
-    css: getPatternCssFilesArray(patternFiles),
-    js: getPatternJsFilesArray(patternFiles)
-  }
+  compiledPatterns[paths.folder] = patternFiles;
 }
 
 
 
 module.exports = {
+  getOptions: getOptions,
 	getFilePaths: getFilePaths,
   convertYamlToObject: convertYamlToObject,
+  convertObjectToYaml: convertObjectToYaml,
+  getPatternData: getPatternData,
+  checkPatternCompiled: checkPatternCompiled,
   createCompiledYmlObject: createCompiledYmlObject,
   getPatternDestPath: getPatternDestPath,
   writeFile: writeFile,
@@ -212,5 +352,6 @@ module.exports = {
   createFile: createFile,
   getPatternCssFilesArray: getPatternCssFilesArray,
   getPatternJsFilesArray: getPatternJsFilesArray,
+  createHtmlElements: createHtmlElements,
   addPatternToCompiledPatterns: addPatternToCompiledPatterns
 }

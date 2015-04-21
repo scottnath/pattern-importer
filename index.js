@@ -24,47 +24,11 @@ var through = require('through2'),
 
     var sass = require('node-sass');
 
-  var optionsDefaults = {
-    dataSource: 'pattern',
-    dataFileName: 'pattern.yml',
-    patternImportDest: './app/_patterns',
-    cssCompiler: 'sass', // sass, less, stylus, none
-    templateEngine: 'twig'
-  }
 
 var patternImporter = function patternImporter (options) {
 
-  if (!options) options = {};
+  options = utils.getOptions(options);
 
-  // determine data source
-  if (!options.dataSource) options.dataSource = optionsDefaults.dataSource;
-  if (typeof options.dataSource !== 'string') {
-    throw new gutil.PluginError(PLUGIN_NAME, 'Pattern dataSource name must be a string');
-  }
-
-  // determine pattern datafileName name
-  if (!options.dataFileName) options.dataFileName = optionsDefaults.dataFileName;
-  if (typeof options.dataFileName !== 'string') {
-    throw new gutil.PluginError(PLUGIN_NAME, 'Pattern dataFileName name must be a string');
-  }
-
-  // determine compiled pattern target location
-  if (!options.patternImportDest) options.patternImportDest = optionsDefaults.patternImportDest;
-  if (typeof options.patternImportDest !== 'string') {
-    throw new gutil.PluginError(PLUGIN_NAME, 'Pattern import destination folder must be a string');
-  }
-
-  // determine pattern template compiling engine
-  if (!options.templateEngine) options.templateEngine = optionsDefaults.templateEngine;
-  if (typeof options.templateEngine !== 'string') {
-    throw new gutil.PluginError(PLUGIN_NAME, 'Pattern template engine must be a string');
-  }
-
-  // determine css compiler
-  if (!options.cssCompiler) options.cssCompiler = optionsDefaults.cssCompiler;
-  if (typeof options.cssCompiler !== 'string') {
-    throw new gutil.PluginError(PLUGIN_NAME, 'CSS compiler name must be a string');
-  }
   // make the pattern target destination folder
   mkdirp.sync(options.patternImportDest);
 

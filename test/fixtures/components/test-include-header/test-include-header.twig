@@ -1,7 +1,7 @@
 <!-- PATTERN START - /fixtures/test-include-header -->
-{% set header = header.h1 %}
+
 <header class="{{header.class}}">
-  {% include '../test-elm-h1.twig' with header %}
-  {% include '../test-elm-p.twig' with paragraph %}
+  {% include '../../test-elm-h1/test-elm-h1.twig' with header %}
+  {% include '../../test-elm-p/test-elm-p.twig' with paragraph %}
 </header>
 <!-- PATTERN END - /fixtures/test-include-header -->
