@@ -1,5 +1,5 @@
 var patternImporter = require('../'),
-    patternUtilities = require('../utils'),
+    patternUtilities = require('../lib/utils'),
     importSinglePattern = require('../lib/import-single-pattern'),
     patternCompiler = require('../lib/pattern-compiler'),
     cssUtils = require('../lib/css-utils.js'),
