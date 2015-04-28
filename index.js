@@ -13,7 +13,7 @@ var through = require('through2'),
  *
  * @param {Object} options
 */
-var patternImporter = function patternImporter (options) {
+function patternImporter (options) {
 
   options = utils.getOptions(options);
 
@@ -34,7 +34,7 @@ var patternImporter = function patternImporter (options) {
     }
 
     // convert single pattern
-    importSinglePattern.importSinglePattern(file, options, compiledPatterns);
+    importSinglePattern.importPattern(file, options, compiledPatterns);
 
     this.push(file);
     cb();
