@@ -44,4 +44,9 @@ function patternImporter (options) {
 
 }
 
-module.exports = patternImporter;
+module.exports = exports = patternImporter;
+
+/**
+ * Export the utilities functions
+ */
+exports.utils = require('./lib/utils');
