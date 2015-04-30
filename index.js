@@ -48,6 +48,6 @@ module.exports = {
   patternImporter: patternImporter,
   utils: utils,
   importSinglePattern: importSinglePattern,
-  twigCompiler: require('./lib/twig-compiler'),
-  sassCompiler: require('./lib/sass-compiler')
+  twigCompiler: require('./lib/pattern-compilers/twig-compiler'),
+  sassCompiler: require('./lib/css-compilers/sass-compiler')
 }
