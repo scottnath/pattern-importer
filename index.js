@@ -44,4 +44,10 @@ function patternImporter (options) {
 
 }
 
-module.exports = patternImporter;
+module.exports = {
+  patternImporter: patternImporter,
+  utils: utils,
+  importSinglePattern: importSinglePattern,
+  twigCompiler: require('./lib/twig-compiler'),
+  sassCompiler: require('./lib/sass-compiler')
+}
