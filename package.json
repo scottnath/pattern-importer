@@ -1,7 +1,7 @@
 {
   "name": "pattern-importer",
   "version": "0.0.1",
-  "description": "Script to import html patterns according to the standards set out by github.com/pattern-library.",
+  "description": "Scripts to import html patterns according to the standards set out by github.com/pattern-library.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
