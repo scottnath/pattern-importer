@@ -28,7 +28,7 @@ module.exports = function (gulp, projectOptions) {
   var options = {
     patternFiles: ['./app/bower_components/pattern-library/patterns/**/pattern.yml','./app/patterns-local/**/pattern.yml'],
     patternImporterOptions: patternImporterUtils.getOptions()
-  }
+  };
 
   /* merge project and default options */
   merge(options, projectOptions, function (a, b) {
