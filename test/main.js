@@ -1,5 +1,6 @@
 var patternImporter = require('../'),
     patternUtilities = require('../lib/utils'),
+    plUtils = require('pattern-library-utilities'),
     importSinglePattern = require('../lib/import-single-pattern'),
     patternCompiler = require('../lib/pattern-compiler'),
     cssUtils = require('../lib/css-utils.js'),
@@ -50,7 +51,7 @@ describe('pattern-importing', function () {
     it('should return pattern paths', function () {
 
       var file = createFile('test-elm-h1/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
+      var paths = plUtils.getFilePaths(file);
 
       String(paths.absolute).should.equal(path.join(path.resolve(),'test/fixtures/test-elm-h1/pattern.yml'));
       String(paths.relative).should.equal('test/fixtures/test-elm-h1/pattern.yml');
@@ -62,7 +63,7 @@ describe('pattern-importing', function () {
     it('should convert yaml data to an object', function () {
 
       var file = createFile('test-elm-h1/pattern.yml');
-      var patternObject = patternUtilities.convertYamlToObject(file.contents);
+      var patternObject = plUtils.convertYamlToObject(file.contents);
 
       patternObject.should.have.property('name', 'Heading Level 1 Test H1');
       patternObject.should.have.property('description', 'First level heading inside a test');
@@ -75,8 +76,8 @@ describe('pattern-importing', function () {
     it('should create the compiled yaml object', function () {
 
       var file = createFile('test-elm-h1/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
-      var patternObject = patternUtilities.convertYamlToObject(file.contents);
+      var paths = plUtils.getFilePaths(file);
+      var patternObject = plUtils.convertYamlToObject(file.contents);
 
       var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
 
@@ -96,7 +97,7 @@ describe('pattern-importing', function () {
     it('should get a pattern destination path', function () {
 
       var file = createFile('test-elm-h1/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
+      var paths = plUtils.getFilePaths(file);
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
       var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
 
@@ -113,9 +114,9 @@ describe('pattern-importing', function () {
     it('should test if the pattern has been compiled during this round', function () {
 
       var file = createFile('components/test-include-header/pattern.yml');
-      var pathsTestIncludeHeader = patternUtilities.getFilePaths(file);
+      var pathsTestIncludeHeader = plUtils.getFilePaths(file);
       var file = createFile('components/test-newsblock/pattern.yml');
-      var pathsTestNewsblock = patternUtilities.getFilePaths(file);
+      var pathsTestNewsblock = plUtils.getFilePaths(file);
       var compiledPatterns = [];
       expect(compiledPatterns[pathsTestIncludeHeader.folder]).to.be.undefined;
       expect(compiledPatterns[pathsTestNewsblock.folder]).to.be.undefined;
@@ -134,7 +135,7 @@ describe('pattern-importing', function () {
     it('should determine our pattern template file and compiling engine', function () {
 
       var file = createFile('test-elm-h1/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
+      var paths = plUtils.getFilePaths(file);
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
       var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
       var patternDestPath = patternUtilities.getPatternDestPath(compiledYmlObject, paths, options);
@@ -157,7 +158,7 @@ describe('pattern-importing', function () {
     it('should default to an html pattern with a warning message', function () {
 
       var file = createFile('generic-elm-h2/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
+      var paths = plUtils.getFilePaths(file);
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
       var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
       var patternDestPath = patternUtilities.getPatternDestPath(compiledYmlObject, paths, options);
@@ -184,7 +185,7 @@ describe('pattern-importing', function () {
     it('should compile the current template\'s css pre-processor file', function () {
 
       var file = createFile('test-elm-h1/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
+      var paths = plUtils.getFilePaths(file);
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
       var cssCompilerData = cssUtils.determineCssCompiler(options, patternObject);
 
@@ -197,7 +198,7 @@ describe('pattern-importing', function () {
     it('should skip compling vanilla css', function () {
 
       var file = createFile('generic-elm-h2/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
+      var paths = plUtils.getFilePaths(file);
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
       var cssCompilerData = cssUtils.determineCssCompiler(options, patternObject);
 
@@ -218,7 +219,7 @@ describe('pattern-importing', function () {
 
       var patternFiles = {};
       var file = createFile('components/test-include-header/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
+      var paths = plUtils.getFilePaths(file);
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
       var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
       var patternDestPath = patternUtilities.getPatternDestPath(compiledYmlObject, paths, options);
@@ -238,7 +239,7 @@ describe('pattern-importing', function () {
 
       var patternFiles = {};
       var file = createFile('components/test-include-header/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
+      var paths = plUtils.getFilePaths(file);
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
       var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
       var patternDestPath = patternUtilities.getPatternDestPath(compiledYmlObject, paths, options);
@@ -257,7 +258,7 @@ describe('pattern-importing', function () {
     it('should create a list of included-pattern(s) css files', function () {
 
       var file = createFile('components/test-include-header/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
+      var paths = plUtils.getFilePaths(file);
       var compiledPatterns = [];
       var patternFiles = importSinglePattern.getPattern(paths, options, compiledPatterns);
       patternFiles.includedFiles.css.should.eql(['test/_patterns/uncategorized/generic-elm-h2/generic-elm-h2.css','test/_patterns/base/subcatbase/test-elm-h1/test-elm-h1.css','test/_patterns/base/sometestsubcat/test-elm-p/test-elm-p.css']);
@@ -267,7 +268,7 @@ describe('pattern-importing', function () {
     it('should create a list of included-pattern(s) js files', function () {
 
       var file = createFile('components/test-include-header/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
+      var paths = plUtils.getFilePaths(file);
       var compiledPatterns = [];
       var patternFiles = importSinglePattern.getPattern(paths, options, compiledPatterns);
       patternFiles.includedFiles.js.should.eql(['test/_patterns/base/subcatbase/test-elm-h1/test-elm-h1.js','test/_patterns/base/sometestsubcat/test-elm-p/test-elm-p.js']);
@@ -277,7 +278,7 @@ describe('pattern-importing', function () {
     it('should convert the css list to html link elements', function () {
 
       var file = createFile('components/test-include-header/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
+      var paths = plUtils.getFilePaths(file);
       var compiledPatterns = [];
       var patternFiles = importSinglePattern.getPattern(paths, options, compiledPatterns);
 
@@ -289,7 +290,7 @@ describe('pattern-importing', function () {
     it('should convert the js list to html script elements', function () {
 
       var file = createFile('components/test-include-header/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
+      var paths = plUtils.getFilePaths(file);
       var compiledPatterns = [];
       var patternFiles = importSinglePattern.getPattern(paths, options, compiledPatterns);
 
@@ -318,7 +319,7 @@ describe('pattern-importing', function () {
     it('should compile sass into css', function () {
 
       var file = createFile('test-elm-h1/pattern.yml');
-      var paths = patternUtilities.getFilePaths(file);
+      var paths = plUtils.getFilePaths(file);
       var patternObject = patternUtilities.convertYamlToObject(file.contents);
       var cssCompilerData = cssUtils.determineCssCompiler(options, patternObject);
 
@@ -353,7 +354,7 @@ describe('pattern-importing', function () {
     it.skip('should save the compiled css to the pattern destination path', function () {
 
       // var file = createFile('test-elm-h1/pattern.yml');
-      // var paths = patternUtilities.getFilePaths(file);
+      // var paths = plUtils.getFilePaths(file);
       // var patternObject = patternUtilities.convertYamlToObject(file.contents);
       // var cssCompilerData = cssUtils.determineCssCompiler(options, patternObject);
 
