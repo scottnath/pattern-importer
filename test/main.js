@@ -4,7 +4,7 @@ var patternImporter = require('../'),
     importSinglePattern = require('../lib/import-single-pattern'),
     patternCompiler = require('../lib/pattern-compiler'),
     cssUtils = require('../lib/css-utils.js'),
-    sassCompiler = require('../lib/css-compilers/sass-compiler');
+    sassCompiler = require('pattern-library-utilities').sassCompiler;
 var should = require('should');
 var chai = require('chai');
 var expect = chai.expect;
@@ -308,40 +308,6 @@ describe('pattern-importing', function () {
 
     it.skip('should add the pattern to the compiledPatterns object', function () {
       // should include css/js relative paths as well
-    });
-
-  });
-
-  describe.skip('sass compiling', function () {
-
-    it('should compile sass into css', function () {
-
-      var file = plUtils.createFile(createTestFilePath('test-elm-h1/pattern.yml'));
-      var paths = plUtils.getFilePaths(file);
-      var patternObject = patternUtilities.convertYamlToObject(file.contents);
-      var cssCompilerData = cssUtils.determineCssCompiler(options, patternObject);
-
-      var cssOutput = sassCompiler(paths, cssCompilerData);
-
-      String(cssOutput).should.containEql('.base--h1, .base--STYLED h1 {');
-
-    });
-
-  });
-
-  describe.skip('twig compiling', function () {
-
-
-    it('should get the template donut', function () {
-
-    });
-
-    it('should convert twig syntax into html', function () {
-
-    });
-
-    it('should compile supporting templates into a single html page', function () {
-
     });
 
   });
