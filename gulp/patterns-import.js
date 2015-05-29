@@ -1,5 +1,6 @@
 /**
- *  @fileOverview Uses Gulpjs to import html patterns
+ *  @fileOverview
+ * Uses Gulpjs to import html patterns
  *
  *  @author       Scott Nath
  *
@@ -16,8 +17,9 @@ var gulp = require('gulp'),
 
 /**
  * Gulp task to import raw patterns and convert them to browser-ready html/css/js
- * @param {Object} [options] custom options
- * @param {Array,String} options.patternFiles  project-relative path to sets of un-compiled patterns
+ * @name patternsImport
+ * @param {Object} options custom options
+ * @param {Array|String} options.patternFiles  project-relative path to sets of un-compiled patterns
  * @param {Object}  options.patternImporterOptions  options needed for the pattern-importer
  * @requires NPM:Gulp
  * @requires NPM:lodash.merge
@@ -36,11 +38,11 @@ module.exports = function (gulp, projectOptions) {
   });
 
   /* the gulp task */
-	gulp.task('patterns-import', function() {
+  gulp.task('patterns-import', function() {
 
-	  return gulp.src(options.patternFiles)
-	    .pipe(patternImporter(options));
+    return gulp.src(options.patternFiles)
+      .pipe(patternImporter(options));
 
-	});
+  });
 
 }
