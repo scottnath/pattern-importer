@@ -1,5 +1,6 @@
 /**
- *  @fileOverview Uses Gulpjs to import html patterns
+ *  @fileOverview
+ * Uses Gulpjs to import html patterns
  *
  *  @author       Scott Nath
  *
@@ -16,7 +17,6 @@ var gulp = require('gulp'),
 
 /**
  * Gulp task to import raw patterns and convert them to browser-ready html/css/js
- * @function
  * @name patternsImport
  * @param {Object} options custom options
  * @param {Array|String} options.patternFiles  project-relative path to sets of un-compiled patterns
