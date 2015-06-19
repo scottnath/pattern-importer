@@ -15,14 +15,18 @@ var path = require('path');
 
 // create our options
 var options = {
+  compilePatternsOnImport: false,
   dataSource: 'pattern',
   dataFileName: 'pattern.yml',
   patternImportDest: './test/_patterns',
+  htmlTemplateDest: './source',
+  stylesDest: './source/css/scss',
   cssCompiler: 'sass', // sass, less, stylus, none
   templateEngine: 'twig',
   templateDonut: {
     'twig': './templates/donut.twig'
-  }
+  },
+  uncategorizedDir: 'uncategorized'
 };
 
 var createTestFilePath = function(filePath) {
@@ -88,6 +92,59 @@ describe('pattern-importing', function () {
     });
 
     it.skip('should get the template options from the template data file', function () {
+
+    });
+
+    it('should get a pattern category path', function () {
+
+      var file = plUtils.createFile(createTestFilePath('base/test-img/pattern.yml'));
+      var paths = plUtils.getFilePaths(file);
+      var patternObject = plUtils.convertYamlToObject(file.contents);
+      var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
+
+      var patternCategoryPath = patternUtilities.getCategoryPath(patternObject, options);
+
+      patternCategoryPath.should.equal('base');
+
+    });
+
+    it('should get a pattern category path with a subcategory', function () {
+
+      var file = plUtils.createFile(createTestFilePath('test-elm-h1/pattern.yml'));
+      var paths = plUtils.getFilePaths(file);
+      var patternObject = plUtils.convertYamlToObject(file.contents);
+      var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
+
+      var patternCategoryPath = patternUtilities.getCategoryPath(patternObject, options);
+
+      patternCategoryPath.should.equal('base/subcatbase');
+
+    });
+
+    it('should get an uncategorized pattern category path', function () {
+
+      var file = plUtils.createFile(createTestFilePath('generic-elm-h2/pattern.yml'));
+      var paths = plUtils.getFilePaths(file);
+      var patternObject = plUtils.convertYamlToObject(file.contents);
+      var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
+
+      var patternCategoryPath = patternUtilities.getCategoryPath(patternObject, options);
+
+      patternCategoryPath.should.equal('uncategorized');
+
+    });
+
+    it('should get an options-defined uncategorized pattern category path', function () {
+
+      options.uncategorizedDir = 'made-up-directory';
+      var file = plUtils.createFile(createTestFilePath('generic-elm-h2/pattern.yml'));
+      var paths = plUtils.getFilePaths(file);
+      var patternObject = plUtils.convertYamlToObject(file.contents);
+      var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
+
+      var patternCategoryPath = patternUtilities.getCategoryPath(patternObject, options);
+
+      patternCategoryPath.should.equal('made-up-directory');
 
     });
 
