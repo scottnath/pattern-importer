@@ -25,6 +25,7 @@ subcategories:
     navigation: 05-navigation
     components: 06-components
     messaging: 07-messaging
+    global: 08-global
   02-organisms:
     global: 00-global
     article: 01-article
