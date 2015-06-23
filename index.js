@@ -8,6 +8,5 @@ module.exports = {
   patternImporter: require('./lib/pattern-importer'),
   utils: require('./lib/utils'),
   importSinglePattern: require('./lib/import-single-pattern'),
-  gulpImportPatterns: require('./gulp/patterns-import'),
-  gulpPatternlabImport: require('./gulp/pattern-lab-import')
+  gulpImportPatterns: require('./gulp/patterns-import')
 }
