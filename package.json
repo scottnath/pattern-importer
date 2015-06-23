@@ -1,6 +1,6 @@
 {
   "name": "pattern-importer",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Scripts to import html patterns according to the standards set out by github.com/pattern-library.",
   "main": "index.js",
   "scripts": {
