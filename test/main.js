@@ -19,7 +19,6 @@ var options = {
   compilePatternsOnImport: false,
   dataSource: 'pattern',
   dataFileName: 'pattern.yml',
-  patternImportDest: './test/_patterns',
   htmlTemplateDest: './test',
   stylesDest: './test/css/scss',
   scriptsDest: './test/js',
@@ -163,7 +162,7 @@ describe('pattern-importing', function () {
 
       var patternDestPath = patternUtilities.getPatternDestPath(compiledYmlObject, paths, options);
 
-      patternDestPath.should.equal('test/_patterns/base/subcatbase/test-elm-h1');
+      patternDestPath.should.equal('test/base/subcatbase/test-elm-h1');
 
     });
 
@@ -254,7 +253,7 @@ describe('pattern-importing', function () {
         patternFiles.patternCss = cssFileRelativePath;
       }
 
-      String(patternFiles.patternCss).should.equal('test/_patterns/base/subcatbase23/test-include-header/test-include-header.css');
+      String(patternFiles.patternCss).should.equal('test/base/subcatbase23/test-include-header/test-include-header.css');
 
     });
 
@@ -274,7 +273,7 @@ describe('pattern-importing', function () {
         patternFiles.patternScript = jsFileRelativePath;
       }
 
-      String(patternFiles.patternScript).should.equal('test/_patterns/base/subcatbase23/test-include-header/test-include-header.js');
+      String(patternFiles.patternScript).should.equal('test/base/subcatbase23/test-include-header/test-include-header.js');
 
     });
 
@@ -284,7 +283,7 @@ describe('pattern-importing', function () {
       var paths = plUtils.getFilePaths(file);
       var compiledPatterns = [];
       var patternFiles = importSinglePattern.getPattern(paths, options, compiledPatterns);
-      patternFiles.includedFiles.css.should.eql(['test/_patterns/uncategorized/generic-elm-h2/generic-elm-h2.css','test/_patterns/base/subcatbase/test-elm-h1/test-elm-h1.css','test/_patterns/base/sometestsubcat/test-elm-p/test-elm-p.css']);
+      patternFiles.includedFiles.css.should.eql(['test/uncategorized/generic-elm-h2/generic-elm-h2.css','test/base/subcatbase/test-elm-h1/test-elm-h1.css','test/base/sometestsubcat/test-elm-p/test-elm-p.css']);
 
     });
 
@@ -294,7 +293,7 @@ describe('pattern-importing', function () {
       var paths = plUtils.getFilePaths(file);
       var compiledPatterns = [];
       var patternFiles = importSinglePattern.getPattern(paths, options, compiledPatterns);
-      patternFiles.includedFiles.js.should.eql(['test/_patterns/base/subcatbase/test-elm-h1/test-elm-h1.js','test/_patterns/base/sometestsubcat/test-elm-p/test-elm-p.js']);
+      patternFiles.includedFiles.js.should.eql(['test/base/subcatbase/test-elm-h1/test-elm-h1.js','test/base/sometestsubcat/test-elm-p/test-elm-p.js']);
 
     });
 
@@ -306,7 +305,7 @@ describe('pattern-importing', function () {
       var patternFiles = importSinglePattern.getPattern(paths, options, compiledPatterns);
 
       var cssHtml = patternUtilities.createHtmlElements(patternFiles.includedFiles.css);
-      String(cssHtml).should.containEql('<link rel="stylesheet" href="test/_patterns/uncategorized/generic-elm-h2/generic-elm-h2.css">\n');
+      String(cssHtml).should.containEql('<link rel="stylesheet" href="test/uncategorized/generic-elm-h2/generic-elm-h2.css">\n');
 
     });
 
@@ -318,8 +317,8 @@ describe('pattern-importing', function () {
       var patternFiles = importSinglePattern.getPattern(paths, options, compiledPatterns);
 
       var jsHtml = patternUtilities.createHtmlElements(patternFiles.includedFiles.js);
-      String(jsHtml).should.containEql('<script src="test/_patterns/base/subcatbase/test-elm-h1/test-elm-h1.js"></script>\n');
-      String(jsHtml).should.containEql('<script src="test/_patterns/base/sometestsubcat/test-elm-p/test-elm-p.js"></script>\n');
+      String(jsHtml).should.containEql('<script src="test/base/subcatbase/test-elm-h1/test-elm-h1.js"></script>\n');
+      String(jsHtml).should.containEql('<script src="test/base/sometestsubcat/test-elm-p/test-elm-p.js"></script>\n');
 
     });
 
