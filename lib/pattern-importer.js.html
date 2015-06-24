@@ -86,8 +86,6 @@
             <ul class="nav nav-list bs-docs-sidenav affix-top">
               <li><a href="#exports"><i class="alert alert-info"></i><span>exports</span></a>
               </li>
-              <li><a href="#paths"><i class="alert alert-success"></i><span>paths</span></a>
-              </li>
             </ul>
           </div>
         </div>
@@ -128,20 +126,15 @@
     if (file.isStream()) {
       this.emit('error', new PluginError(PLUGIN_NAME, 'Streams not supported'));
       return cb();
-    }</code></pre>
-          <section id="paths">
-            <h1>paths</h1>
-            <h5 class="subheader"></h5>
-            <p>
-              <div class="label label-success radius ctx-type">declaration</div><span>paths</span>
-            </p>
-          </section>
-          <div class="description"><p>get path details for our pattern</p> </div>
-          <pre><code class="language-javascript">var paths = plUtils.getFilePaths(file);
+    }
 
-    var patternFiles = getPatternImportData(paths, options);</code></pre>
-          <div class="description"><p>send our pattern&#39;s files to be copied or written</p> </div>
-          <pre><code class="language-javascript">utils.writeCopyFiles(patternFiles);
+    // get path details for our pattern
+    var paths = plUtils.getFilePaths(file);
+
+    var patternFiles = getPatternImportData(paths, options);
+
+    // send our pattern's files to be copied or written
+    utils.writeCopyFiles(patternFiles);
 
     this.push(file);
     cb();
