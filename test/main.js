@@ -2,6 +2,7 @@ var patternImporter = require('../'),
     patternUtilities = require('../lib/utils'),
     plUtils = require('pattern-library-utilities'),
     importSinglePattern = require('../lib/import-single-pattern'),
+    getPatternImportData = require('../lib/get-pattern-import-data'),
     patternCompiler = require('../lib/pattern-compiler'),
     cssUtils = require('../lib/css-utils.js');
 var should = require('should');
@@ -15,14 +16,22 @@ var path = require('path');
 
 // create our options
 var options = {
+  compilePatternsOnImport: false,
   dataSource: 'pattern',
   dataFileName: 'pattern.yml',
-  patternImportDest: './test/_patterns',
+  htmlTemplateDest: './test',
+  stylesDest: './test/css/scss',
+  scriptsDest: './test/js',
   cssCompiler: 'sass', // sass, less, stylus, none
   templateEngine: 'twig',
+  templateEngineOptions: {
+    'base': './test/fixtures/',
+    'async': false
+  },
   templateDonut: {
     'twig': './templates/donut.twig'
-  }
+  },
+  uncategorizedDir: 'uncategorized'
 };
 
 var createTestFilePath = function(filePath) {
@@ -91,6 +100,59 @@ describe('pattern-importing', function () {
 
     });
 
+    it('should get a pattern category path', function () {
+
+      var file = plUtils.createFile(createTestFilePath('base/test-img/pattern.yml'));
+      var paths = plUtils.getFilePaths(file);
+      var patternObject = plUtils.convertYamlToObject(file.contents);
+      var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
+
+      var patternCategoryPath = patternUtilities.getCategoryPath(patternObject, options);
+
+      patternCategoryPath.should.equal('base');
+
+    });
+
+    it('should get a pattern category path with a subcategory', function () {
+
+      var file = plUtils.createFile(createTestFilePath('test-elm-h1/pattern.yml'));
+      var paths = plUtils.getFilePaths(file);
+      var patternObject = plUtils.convertYamlToObject(file.contents);
+      var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
+
+      var patternCategoryPath = patternUtilities.getCategoryPath(patternObject, options);
+
+      patternCategoryPath.should.equal('base/subcatbase');
+
+    });
+
+    it('should get an uncategorized pattern category path', function () {
+
+      var file = plUtils.createFile(createTestFilePath('generic-elm-h2/pattern.yml'));
+      var paths = plUtils.getFilePaths(file);
+      var patternObject = plUtils.convertYamlToObject(file.contents);
+      var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
+
+      var patternCategoryPath = patternUtilities.getCategoryPath(patternObject, options);
+
+      patternCategoryPath.should.equal('uncategorized');
+
+    });
+
+    it('should get an options-defined uncategorized pattern category path', function () {
+
+      options.uncategorizedDir = 'made-up-directory';
+      var file = plUtils.createFile(createTestFilePath('generic-elm-h2/pattern.yml'));
+      var paths = plUtils.getFilePaths(file);
+      var patternObject = plUtils.convertYamlToObject(file.contents);
+      var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
+
+      var patternCategoryPath = patternUtilities.getCategoryPath(patternObject, options);
+
+      patternCategoryPath.should.equal('made-up-directory');
+
+    });
+
     it('should get a pattern destination path', function () {
 
       var file = plUtils.createFile(createTestFilePath('test-elm-h1/pattern.yml'));
@@ -100,7 +162,7 @@ describe('pattern-importing', function () {
 
       var patternDestPath = patternUtilities.getPatternDestPath(compiledYmlObject, paths, options);
 
-      patternDestPath.should.equal('test/_patterns/base/subcatbase/test-elm-h1');
+      patternDestPath.should.equal('test/base/subcatbase/test-elm-h1');
 
     });
 
@@ -108,39 +170,17 @@ describe('pattern-importing', function () {
 
   describe('pattern compiling', function () {
 
-    it('should test if the pattern has been compiled during this round', function () {
 
-      var file = plUtils.createFile(createTestFilePath('components/test-include-header/pattern.yml'));
-      var pathsTestIncludeHeader = plUtils.getFilePaths(file);
-      var file = plUtils.createFile(createTestFilePath('components/test-newsblock/pattern.yml'));
-      var pathsTestNewsblock = plUtils.getFilePaths(file);
-      var compiledPatterns = [];
-      expect(compiledPatterns[pathsTestIncludeHeader.folder]).to.be.undefined;
-      expect(compiledPatterns[pathsTestNewsblock.folder]).to.be.undefined;
-
-      var patternFiles = importSinglePattern.getPattern(pathsTestIncludeHeader, options, compiledPatterns);
-      expect(compiledPatterns[pathsTestIncludeHeader.folder]).to.be.defined;
-      expect(compiledPatterns[pathsTestNewsblock.folder]).to.be.defined;
-      patternUtilities.checkPatternCompiled(pathsTestIncludeHeader, compiledPatterns).should.equal(true);
-      patternUtilities.checkPatternCompiled(pathsTestNewsblock, compiledPatterns).should.equal(false);
-
-      var patternFiles = importSinglePattern.getPattern(pathsTestNewsblock, options, compiledPatterns);
-      patternUtilities.checkPatternCompiled(pathsTestNewsblock, compiledPatterns).should.equal(true);
-
-    })
-
-    it('should determine our pattern template file and compiling engine', function () {
-
+    it('should determine know a destination and the final compiled html', function () {
+      var compileOptions = options;
+      compileOptions.compilePatternsOnImport = true;
       var file = plUtils.createFile(createTestFilePath('test-elm-h1/pattern.yml'));
       var paths = plUtils.getFilePaths(file);
-      var patternObject = plUtils.convertYamlToObject(file.contents);
-      var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
-      var patternDestPath = patternUtilities.getPatternDestPath(compiledYmlObject, paths, options);
+      var patternFiles = getPatternImportData(paths, compileOptions);
 
-      var patternCompilerData = patternCompiler.determineCompiler(options, patternObject, patternDestPath, paths);
-      patternCompilerData.should.have.property('src', 'test/fixtures/test-elm-h1/test-elm-h1.twig');
-      patternCompilerData.should.have.property('dest', 'test/_patterns/base/subcatbase/test-elm-h1/test-elm-h1.html');
-      patternCompilerData.should.have.property('templateEngine', 'twig');
+      patternFiles.should.have.property('filesToWrite');
+      patternFiles.filesToWrite[0].should.have.property('dest', 'test/base/subcatbase/test-elm-h1.html');
+      patternFiles.filesToWrite[0].should.have.property('contents', '<h1 class="test--h1">Test Header 1</h1>\n');
 
     });
 
@@ -149,21 +189,6 @@ describe('pattern-importing', function () {
     });
 
     it.skip('should allow the system to override overriding the templateEngine', function () {
-
-    });
-
-    it('should default to an html pattern with a warning message', function () {
-
-      var file = plUtils.createFile(createTestFilePath('generic-elm-h2/pattern.yml'));
-      var paths = plUtils.getFilePaths(file);
-      var patternObject = plUtils.convertYamlToObject(file.contents);
-      var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
-      var patternDestPath = patternUtilities.getPatternDestPath(compiledYmlObject, paths, options);
-
-      var patternCompilerData = patternCompiler.determineCompiler(options, patternObject, patternDestPath, paths);
-      patternCompilerData.should.have.property('src', 'test/fixtures/generic-elm-h2/generic-elm-h2.html');
-      patternCompilerData.should.have.property('dest', 'test/_patterns/uncategorized/generic-elm-h2/generic-elm-h2.html');
-      patternCompilerData.should.have.property('templateEngine', 'none');
 
     });
 
@@ -228,7 +253,7 @@ describe('pattern-importing', function () {
         patternFiles.patternCss = cssFileRelativePath;
       }
 
-      String(patternFiles.patternCss).should.equal('test/_patterns/base/subcatbase23/test-include-header/test-include-header.css');
+      String(patternFiles.patternCss).should.equal('test/base/subcatbase23/test-include-header/test-include-header.css');
 
     });
 
@@ -248,31 +273,31 @@ describe('pattern-importing', function () {
         patternFiles.patternScript = jsFileRelativePath;
       }
 
-      String(patternFiles.patternScript).should.equal('test/_patterns/base/subcatbase23/test-include-header/test-include-header.js');
+      String(patternFiles.patternScript).should.equal('test/base/subcatbase23/test-include-header/test-include-header.js');
 
     });
 
-    it('should create a list of included-pattern(s) css files', function () {
+    it.skip('should create a list of included-pattern(s) css files', function () {
 
       var file = plUtils.createFile(createTestFilePath('components/test-include-header/pattern.yml'));
       var paths = plUtils.getFilePaths(file);
       var compiledPatterns = [];
       var patternFiles = importSinglePattern.getPattern(paths, options, compiledPatterns);
-      patternFiles.includedFiles.css.should.eql(['test/_patterns/uncategorized/generic-elm-h2/generic-elm-h2.css','test/_patterns/base/subcatbase/test-elm-h1/test-elm-h1.css','test/_patterns/base/sometestsubcat/test-elm-p/test-elm-p.css']);
+      patternFiles.includedFiles.css.should.eql(['test/uncategorized/generic-elm-h2/generic-elm-h2.css','test/base/subcatbase/test-elm-h1/test-elm-h1.css','test/base/sometestsubcat/test-elm-p/test-elm-p.css']);
 
     });
 
-    it('should create a list of included-pattern(s) js files', function () {
+    it.skip('should create a list of included-pattern(s) js files', function () {
 
       var file = plUtils.createFile(createTestFilePath('components/test-include-header/pattern.yml'));
       var paths = plUtils.getFilePaths(file);
       var compiledPatterns = [];
       var patternFiles = importSinglePattern.getPattern(paths, options, compiledPatterns);
-      patternFiles.includedFiles.js.should.eql(['test/_patterns/base/subcatbase/test-elm-h1/test-elm-h1.js','test/_patterns/base/sometestsubcat/test-elm-p/test-elm-p.js']);
+      patternFiles.includedFiles.js.should.eql(['test/base/subcatbase/test-elm-h1/test-elm-h1.js','test/base/sometestsubcat/test-elm-p/test-elm-p.js']);
 
     });
 
-    it('should convert the css list to html link elements', function () {
+    it.skip('should convert the css list to html link elements', function () {
 
       var file = plUtils.createFile(createTestFilePath('components/test-include-header/pattern.yml'));
       var paths = plUtils.getFilePaths(file);
@@ -280,11 +305,11 @@ describe('pattern-importing', function () {
       var patternFiles = importSinglePattern.getPattern(paths, options, compiledPatterns);
 
       var cssHtml = patternUtilities.createHtmlElements(patternFiles.includedFiles.css);
-      String(cssHtml).should.containEql('<link rel="stylesheet" href="test/_patterns/uncategorized/generic-elm-h2/generic-elm-h2.css">\n');
+      String(cssHtml).should.containEql('<link rel="stylesheet" href="test/uncategorized/generic-elm-h2/generic-elm-h2.css">\n');
 
     });
 
-    it('should convert the js list to html script elements', function () {
+    it.skip('should convert the js list to html script elements', function () {
 
       var file = plUtils.createFile(createTestFilePath('components/test-include-header/pattern.yml'));
       var paths = plUtils.getFilePaths(file);
@@ -292,12 +317,8 @@ describe('pattern-importing', function () {
       var patternFiles = importSinglePattern.getPattern(paths, options, compiledPatterns);
 
       var jsHtml = patternUtilities.createHtmlElements(patternFiles.includedFiles.js);
-      String(jsHtml).should.containEql('<script src="test/_patterns/base/subcatbase/test-elm-h1/test-elm-h1.js"></script>\n');
-      String(jsHtml).should.containEql('<script src="test/_patterns/base/sometestsubcat/test-elm-p/test-elm-p.js"></script>\n');
-
-    });
-
-    it.skip('should convert the template to html', function () {
+      String(jsHtml).should.containEql('<script src="test/base/subcatbase/test-elm-h1/test-elm-h1.js"></script>\n');
+      String(jsHtml).should.containEql('<script src="test/base/sometestsubcat/test-elm-p/test-elm-p.js"></script>\n');
 
     });
 
@@ -311,35 +332,4 @@ describe('pattern-importing', function () {
 
   });
 
-  describe.skip('file writing', function () {
-
-
-    it.skip('should save the compiled css to the pattern destination path', function () {
-
-      // var file = plUtils.createFile(createTestFilePath('test-elm-h1/pattern.yml'));
-      // var paths = plUtils.getFilePaths(file);
-      // var patternObject = plUtils.convertYamlToObject(file.contents);
-      // var cssCompilerData = cssUtils.determineCssCompiler(options, patternObject);
-
-      // var cssCompiledContents = cssUtils.compileCss(paths, cssCompilerData);
-
-      // need help for this test - how to read/write?
-
-
-    });
-
-  })
-
-  // describe('pattern importer', function() {
-
-  //   it('should write an html file', function() {
-
-      // var file = plUtils.createFile(createTestFilePath('test-elm-h1/pattern.yml'));
-  //     var imported = patternImporter(file);
-
-  //     console.log(file);
-  //     console.log(imported);
-
-  //   })
-  // });
 });
