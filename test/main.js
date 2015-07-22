@@ -4,7 +4,8 @@ var patternImporter = require('../'),
     importSinglePattern = require('../lib/import-single-pattern'),
     getPatternImportData = require('../lib/get-pattern-import-data'),
     patternCompiler = require('../lib/pattern-compiler'),
-    cssUtils = require('../lib/css-utils.js');
+    cssUtils = require('../lib/css-utils.js'),
+    convertTwigIncludesPaths = require('../lib/convert-twig-includes-paths.js');
 var should = require('should');
 var chai = require('chai');
 var expect = chai.expect;
@@ -30,6 +31,48 @@ var options = {
   },
   templateDonut: {
     'twig': './templates/donut.twig'
+  },
+  convertCategoryTitles: true,
+  convertCategoryTitlesData: {
+    "categories": {
+      "base": "00-atoms",
+      "atoms": "00-atoms",
+      "molecules": "01-molecules",
+      "components": "02-organisms",
+      "organisms": "02-organisms",
+      "templates": "03-templates",
+      "pages": "04-pages"
+    },
+    "subcategories": {
+      "00-atoms": {
+        "global": "00-global",
+        "text": "01-text",
+        "lists": "02-lists",
+        "images": "03-images",
+        "forms": "04-forms",
+        "buttons": "05-buttons",
+        "tables": "06-tables",
+        "media": "07-media"
+      },
+      "01-molecules": {
+        "text": "00-text",
+        "layout": "01-layout",
+        "blocks": "02-blocks",
+        "media": "03-media",
+        "forms": "04-forms",
+        "navigation": "05-navigation",
+        "components": "06-components",
+        "messaging": "07-messaging",
+        "global": "08-global"
+      },
+      "02-organisms": {
+        "global": "00-global",
+        "article": "01-article",
+        "comments": "02-comments",
+        "components": "03-components",
+        "sections": "04-sections"
+      }
+    }
   },
   uncategorizedDir: 'uncategorized'
 };
@@ -108,8 +151,12 @@ describe('pattern-importing', function () {
       var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
 
       var patternCategoryPath = patternUtilities.getCategoryPath(patternObject, options);
+      patternCategoryPath.should.equal('00-atoms');
 
+      options.convertCategoryTitles = false;
+      var patternCategoryPath = patternUtilities.getCategoryPath(patternObject, options);
       patternCategoryPath.should.equal('base');
+      options.convertCategoryTitles = true;
 
     });
 
@@ -121,8 +168,12 @@ describe('pattern-importing', function () {
       var compiledYmlObject = patternUtilities.createCompiledYmlObject(patternObject, paths, options);
 
       var patternCategoryPath = patternUtilities.getCategoryPath(patternObject, options);
-
+      patternCategoryPath.should.equal('00-atoms/subcatbase');
+      
+      options.convertCategoryTitles = false;
+      var patternCategoryPath = patternUtilities.getCategoryPath(patternObject, options);
       patternCategoryPath.should.equal('base/subcatbase');
+      options.convertCategoryTitles = true;
 
     });
 
@@ -179,7 +230,7 @@ describe('pattern-importing', function () {
       var patternFiles = getPatternImportData(paths, compileOptions);
 
       patternFiles.should.have.property('filesToWrite');
-      patternFiles.filesToWrite[0].should.have.property('dest', 'test/base/subcatbase/test-elm-h1.html');
+      patternFiles.filesToWrite[0].should.have.property('dest', 'test/00-atoms/subcatbase/test-elm-h1.html');
       patternFiles.filesToWrite[0].should.have.property('contents', '<h1 class="test--h1">Test Header 1</h1>\n');
 
     });
@@ -329,6 +380,59 @@ describe('pattern-importing', function () {
     it.skip('should add the pattern to the compiledPatterns object', function () {
       // should include css/js relative paths as well
     });
+
+  });
+
+  describe('twig functions', function () {
+
+    it('should extract a file path from a twig include', function () {
+      // double quote test
+      var twigInclude = '{% include "link/to/some/twigFile.twig" %}';
+      var includePath = convertTwigIncludesPaths.extractTwigIncludePath(twigInclude);
+      includePath[1].should.equal('link/to/some/twigFile.twig');
+      // single quote test
+      var twigInclude = "{% include 'link/to/some/twigFile.twig' %}";
+      var includePath = convertTwigIncludesPaths.extractTwigIncludePath(twigInclude);
+      includePath[1].should.equal('link/to/some/twigFile.twig');
+      // more complex code test
+      var twigInclude = "{% include 'link/to/some/twigFile.twig' with {'promo': hero} %}";
+      var includePath = convertTwigIncludesPaths.extractTwigIncludePath(twigInclude);
+      includePath[1].should.equal('link/to/some/twigFile.twig');
+      // test with other stuff on the same line
+      var twigInclude = "{% include 'link/to/some/twigFile.twig' with {'promo': hero} %} <!-- what if this is here: '%}'? -->";
+      var includePath = convertTwigIncludesPaths.extractTwigIncludePath(twigInclude);
+      includePath[1].should.equal('link/to/some/twigFile.twig');
+    });
+
+    it('should create new file paths from categories', function () {
+      // two-category path
+      var twoCatPath = 'base/global/pattern1/pattern1.twig';
+      var newPath = convertTwigIncludesPaths.createNewCategoryPath(options,twoCatPath);
+      String(newPath).should.containEql('00-atoms/00-global/pattern1.twig');
+      // one-category path
+      var oneCatPath = 'templates/pattern1/pattern1.twig';
+      var newPath = convertTwigIncludesPaths.createNewCategoryPath(options,oneCatPath);
+      String(newPath).should.containEql('03-templates/pattern1.twig');
+      // unmatched category path
+      var nomatchCatPath = 'nomatch/pattern1/pattern1.twig';
+      var newPath = convertTwigIncludesPaths.createNewCategoryPath(options,nomatchCatPath);
+      String(newPath).should.containEql('nomatch/pattern1.twig');
+    });
+
+    it('should convert all includes in a single twig file', function () {
+      var twigFile = plUtils.createFile(createTestFilePath('molecules/media/figure-image/figure-image.twig'));
+      // with conversion
+      var twigContent = convertTwigIncludesPaths.convertTwigIncludes(options,twigFile.contents.toString('utf8'));
+      String(twigContent).should.containEql("{% include '00-atoms/03-images/img.twig' with img %}");
+      String(twigContent).should.not.containEql("{% include 'atoms/images/img/img.twig' with img %}");
+
+      //without conversion
+      options.convertCategoryTitles = false;
+      var twigContent = convertTwigIncludesPaths.convertTwigIncludes(options,twigFile.contents.toString('utf8'));
+      String(twigContent).should.not.containEql("{% include '00-atoms/03-images/img.twig' with img %}");
+      String(twigContent).should.containEql("{% include 'atoms/images/img/img.twig' with img %}");
+      options.convertCategoryTitles = true;
+    })
 
   });
 
