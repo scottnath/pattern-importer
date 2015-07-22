@@ -389,15 +389,19 @@ describe('pattern-importing', function () {
       // double quote test
       var twigInclude = '{% include "link/to/some/twigFile.twig" %}';
       var includePath = convertTwigIncludesPaths.extractTwigIncludePath(twigInclude);
-      String(includePath).should.containEql('link/to/some/twigFile.twig');
+      includePath[1].should.equal('link/to/some/twigFile.twig');
       // single quote test
       var twigInclude = "{% include 'link/to/some/twigFile.twig' %}";
       var includePath = convertTwigIncludesPaths.extractTwigIncludePath(twigInclude);
-      String(includePath).should.containEql('link/to/some/twigFile.twig');
+      includePath[1].should.equal('link/to/some/twigFile.twig');
       // more complex code test
       var twigInclude = "{% include 'link/to/some/twigFile.twig' with {'promo': hero} %}";
       var includePath = convertTwigIncludesPaths.extractTwigIncludePath(twigInclude);
-      String(includePath).should.containEql('link/to/some/twigFile.twig');
+      includePath[1].should.equal('link/to/some/twigFile.twig');
+      // test with other stuff on the same line
+      var twigInclude = "{% include 'link/to/some/twigFile.twig' with {'promo': hero} %} <!-- what if this is here: '%}'? -->";
+      var includePath = convertTwigIncludesPaths.extractTwigIncludePath(twigInclude);
+      includePath[1].should.equal('link/to/some/twigFile.twig');
     });
 
     it('should create new file paths from categories', function () {
