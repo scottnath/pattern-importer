@@ -43,6 +43,7 @@ function getDefaultOptions () {
       convertCategoryTitles: true
     },
     src: ['./node_modules/pattern-library/patterns/**/pattern.yml'],
+    taskName: 'patterns-import', // default task name
     dependencies: [] // gulp tasks which should be run before this task
   };
 
@@ -63,7 +64,7 @@ module.exports = function (gulp, projectOptions) {
   var options = plUtils.getOptions(getDefaultOptions(),projectOptions);
 
   /* the gulp task */
-  gulp.task('patterns-import', function() {
+  gulp.task(options.taskName, options.dependencies, function() {
 
     return gulp.src(options.src)
       .pipe(patternImporter(options.config));
